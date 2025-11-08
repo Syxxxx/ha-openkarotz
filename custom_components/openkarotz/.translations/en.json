@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect your OpenKarotz",
+        "description": "Please enter the IP address of your Karotz rabbit.",
+        "data": {
+          "host": "IP Address (e.g., 192.168.1.50)",
+          "name": "Name (e.g., Living Room Karotz)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the Karotz. Check the IP address and ensure the rabbit is powered on and connected to the network.",
+      "unknown": "An unknown error occurred."
+    },
+    "abort": {
+      "already_configured": "This Karotz device (based on IP address) is already configured."
+    }
+  }
+}

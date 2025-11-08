@@ -1,0 +1,31 @@
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Fichiers de cache (tests)
+.pytest_cache/
+.coverage
+
+# Environnements virtuels
+venv/
+*.venv/
+.venv/
+env/
+.env
+
+# Fichiers de configuration des IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Fichiers de build/distribution
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Fichiers système (macOS, Windows)
+.DS_Store
+Thumbs.db

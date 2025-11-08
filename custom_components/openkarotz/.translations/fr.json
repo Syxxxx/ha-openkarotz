@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connecter votre OpenKarotz",
+        "description": "Veuillez entrer l'adresse IP de votre lapin Karotz.",
+        "data": {
+          "host": "Adresse IP (ex: 192.168.1.50)",
+          "name": "Nom (ex: Karotz Salon)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de se connecter au Karotz. Vérifiez l'adresse IP et que le lapin est bien allumé et connecté au réseau.",
+      "unknown": "Une erreur inconnue est survenue."
+    },
+    "abort": {
+      "already_configured": "Cet appareil Karotz (basé sur l'adresse IP) est déjà configuré."
+    }
+  }
+}

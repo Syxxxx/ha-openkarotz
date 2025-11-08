@@ -1,0 +1,6 @@
+{
+  "name": "OpenKarotz",
+  "render_readme": true,
+  "domains": ["openkarotz"],
+  "homeassistant_version": "2024.1.0"
+}

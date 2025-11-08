@@ -1,0 +1,13 @@
+{
+  "domain": "openkarotz",
+  "name": "OpenKarotz",
+  "config_flow": true,
+  "documentation": "https://github.com/VOTRE_NOM/ha-openkarotz",
+  "issue_tracker": "https://github.com/VOTRE_NOM/ha-openkarotz/issues",
+  "codeowners": ["@VOTRE_NOM"],
+  "version": "1.0.0",
+  "iot_class": "local_push",
+  "dependencies": ["http", "webhook"],
+  "requirements": [],
+  "loggers": ["custom_components.openkarotz"]
+}
