@@ -5,7 +5,13 @@ import aiohttp.web
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.const import CONF_HOST, Platform
-from homeassistant.helpers import device_registry as dr, webhook
+from homeassistant.helpers import device_registry as dr
+# LIGNES MODIFIÉES
+from homeassistant.components.webhook import (
+    async_generate_id,
+    async_register,
+    async_unregister,
+)
 from homeassistant.helpers.typing import ConfigType
 
 from .api import KarotzApiClient
@@ -42,10 +48,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     # 3. Enregistrer le Webhook "push"
-    # Nous utilisons un ID aléatoire sécurisé (ma proposition)
-    webhook_id = webhook.async_generate_id()
+    # LIGNE MODIFIÉE (suppression de 'webhook.')
+    webhook_id = async_generate_id()
     try:
-        webhook.async_register(
+        # LIGNE MODIFIÉE (suppression de 'webhook.')
+        async_register(
             hass,
             DOMAIN,
             "OpenKarotz Events",
@@ -94,7 +101,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     webhook_id = data.get("webhook_id")
     if webhook_id:
         try:
-            webhook.async_unregister(hass, webhook_id)
+            # LIGNE MODIFIÉE (suppression de 'webhook.')
+            async_unregister(hass, webhook_id)
             LOGGER.info("Webhook %s désenregistré.", webhook_id)
         except ValueError:
             LOGGER.warning("Webhook %s déjà désenregistré.", webhook_id)

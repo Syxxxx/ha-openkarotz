@@ -27,7 +27,7 @@ class KarotzSleepSensor(CoordinatorEntity[KarotzCoordinator], BinarySensorEntity
 
     _attr_has_entity_name = True
     _attr_name = "Veille"
-    _attr_device_class = BinarySensorDeviceClass.SLEEPING # Donne la bonne icône
+    _attr_device_class = "sleep"
 
     def __init__(
         self,

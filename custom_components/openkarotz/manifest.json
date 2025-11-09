@@ -4,10 +4,27 @@
   "config_flow": true,
   "documentation": "https://github.com/Syxxxx/ha-openkarotz",
   "issue_tracker": "https://github.com/Syxxxx/ha-openkarotz/issues",
-  "codeowners": ["@Syxxxx"],
-  "version": "1.0.0",
+  "codeowners": [
+    "@Syxxxx"
+  ],
+  "version": "1.0.1",
   "iot_class": "local_push",
-  "dependencies": ["http", "webhook"],
+  "dependencies": [
+    "http",
+    "webhook"
+  ],
   "requirements": [],
-  "loggers": ["custom_components.openkarotz"]
+  "loggers": [
+    "custom_components.openkarotz"
+  ],
+  "platforms": [
+    "binary_sensor",
+    "camera",
+    "cover",
+    "light",
+    "media_player",
+    "sensor",
+    "select",
+    "switch"
+  ]
 }

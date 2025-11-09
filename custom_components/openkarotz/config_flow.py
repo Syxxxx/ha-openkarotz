@@ -3,6 +3,7 @@ import logging
 from typing import Any
 import aiohttp
 import voluptuous as vol
+import json # <-- ASSUREZ-VOUS QUE CET IMPORT EST PRÉSENT
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_NAME
@@ -29,17 +30,28 @@ class OpenKarotzConfigFlow(ConfigFlow, domain=DOMAIN):
         url = f"http://{host}/cgi-bin/status"
         try:
             async with session.get(url, timeout=5) as response:
+                raw_response = await response.text()
+
                 if response.status == 200:
                     try:
-                        # Vérifier si la réponse est un JSON valide (comme attendu de /status)
-                        await response.json()
+                        data = json.loads(raw_response)
                         return True
-                    except (aiohttp.ContentTypeError, ValueError):
-                        LOGGER.error("Connexion à %s réussie, mais la réponse n'est pas un JSON valide.", host)
+                    except json.JSONDecodeError:
+                        LOGGER.error(
+                            "Connexion à %s réussie (HTTP 200), mais la réponse n'est pas un JSON valide. Réponse brute reçue : %s",
+                            host,
+                            raw_response
+                        )
                         return False
-                return False
+                else:
+                    LOGGER.error(
+                        "Le Karotz a répondu avec un code d'erreur HTTP %s. Réponse : %s",
+                        response.status,
+                        raw_response
+                    )
+                    return False
         except (aiohttp.ClientError, TimeoutError):
-            LOGGER.debug("Échec de la connexion à %s", host)
+            LOGGER.debug("Échec de la connexion (timeout) à %s", host)
             return False
         except Exception as err:
             LOGGER.error("Erreur inattendue lors de la connexion à %s: %s", host, err)

@@ -1,0 +1,54 @@
+# services.yaml
+play_mood:
+  name: Jouer une humeur
+  description: Déclenche une humeur (animation LED + son) sur le Karotz.
+  target:
+    entity:
+      integration: openkarotz
+      domain: media_player
+  fields:
+    mood_id:
+      name: ID de l'humeur
+      description: Le numéro de l'humeur à jouer.
+      required: true
+      example: 10
+      selector:
+        number:
+          min: 1
+          max: 999
+          mode: box
+
+play_sound:
+  name: Jouer un son local
+  description: Joue un son stocké localement sur le Karotz par son ID.
+  target:
+    entity:
+      integration: openkarotz
+      domain: media_player
+  fields:
+    sound_id:
+      name: ID du son
+      description: "L'ID du son à jouer (ex: 'new_mail.mp3')."
+      required: true
+      example: "new_mail.mp3"
+      selector:
+        text: {}
+
+play_radio:
+  name: Jouer une radio (pré-réglée)
+  description: Joue une radio pré-enregistrée sur le Karotz par son ID.
+  target:
+    entity:
+      integration: openkarotz
+      domain: media_player
+  fields:
+    radio_id:
+      name: ID de la radio
+      description: Le numéro de la radio pré-réglée à jouer.
+      required: true
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 99
+          mode: box

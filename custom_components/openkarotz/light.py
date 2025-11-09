@@ -3,6 +3,8 @@ from homeassistant.components.light import (
     ATTR_RGB_COLOR,
     ColorMode,
     LightEntity,
+    LightEntityFeature,
+    ATTR_FLASH,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -30,12 +32,13 @@ async def async_setup_entry(
 class KarotzLight(CoordinatorEntity[KarotzCoordinator], LightEntity):
     """
     Representation of the Karotz LED, based on coordinator data.
-    Cette entité n'est PAS optimiste (contrairement au Doc 1).
     """
 
     _attr_has_entity_name = True
     _attr_name = "LED"
     _attr_supported_color_modes = {ColorMode.RGB}
+    # --- SIMPLIFIÉ : Ne supporte plus que le flash simple (on/off) ---
+    _attr_supported_features = LightEntityFeature.FLASH
 
     def __init__(
         self,
@@ -57,11 +60,15 @@ class KarotzLight(CoordinatorEntity[KarotzCoordinator], LightEntity):
         )
 
     @property
+    def color_mode(self) -> str | None:
+        """Return the color mode of the light."""
+        return ColorMode.RGB # Le mode est toujours RGB
+
+    @property
     def is_on(self) -> bool:
         """Return true if the light is on (based on coordinator state)."""
         if not self.coordinator.data:
             return False
-        # L'état est "on" si la couleur n'est pas "000000" (éteint)
         color = self.coordinator.data.get("led_color", "000000")
         return color != "000000"
 
@@ -73,7 +80,6 @@ class KarotzLight(CoordinatorEntity[KarotzCoordinator], LightEntity):
 
         hex_color = self.coordinator.data.get("led_color", "000000")
         try:
-            # Convertir la chaîne hexadécimale (ex: "FF00AA") en tuple RGB
             hex_color = hex_color.lstrip('#')
             return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
         except (ValueError, TypeError):
@@ -82,28 +88,41 @@ class KarotzLight(CoordinatorEntity[KarotzCoordinator], LightEntity):
     async def async_turn_on(self, **kwargs) -> None:
         """Turn the light on."""
         rgb: tuple[int, int, int] | None = kwargs.get(ATTR_RGB_COLOR)
-        
-        if rgb is None:
-            rgb = (255, 255, 255) # Blanc par défaut si aucune couleur n'est fournie
 
-        # Convertir le tuple RGB en chaîne hexadécimale
+        # 1. Déterminer la couleur
+        if rgb is None:
+            if self.is_on and self.rgb_color:
+                rgb = self.rgb_color
+            else:
+                rgb = (255, 255, 255) # Blanc par défaut
+
         color_hex = f"{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
         
-        if await self._client.async_set_led(color=color_hex):
-            # Pour une meilleure réactivité de l'interface, nous mettons à jour l'état
-            # localement AVANT le prochain poll du coordinateur.
-            self._update_local_data(color_hex)
+        # 2. Déterminer le clignotement
+        # Si le flash est demandé, on utilise la vitesse "normale"
+        # Le sélecteur 'select.karotz_led_effect' est maintenant le
+        # seul moyen de contrôler la vitesse.
+        pulse = False
+        speed = None
+        
+        if kwargs.get(ATTR_FLASH) is not None:
+            pulse = True
+            speed = 700 # Vitesse normale pour le flash simple
+
+        # 3. Appeler l'API
+        if await self._client.async_set_led(color=color_hex, pulse=pulse, speed=speed):
+            self._update_local_data(color_hex, pulse=pulse)
 
     async def async_turn_off(self, **kwargs) -> None:
         """Turn the light off."""
         if await self._client.async_set_led(color="000000"):
-            self._update_local_data("000000")
+            self._update_local_data("000000", pulse=False)
 
     @callback
-    def _update_local_data(self, color_hex: str) -> None:
+    def _update_local_data(self, color_hex: str, pulse: bool) -> None:
         """Optimistically update the coordinator's data and HA state."""
         if self.coordinator.data:
             self.coordinator.data["led_color"] = color_hex
-        self.async_write_state()
-        # Demande un rafraîchissement au coordinateur pour confirmer l'état.
+            self.coordinator.data["led_pulse"] = "1" if pulse else "0"
+        self.async_write_ha_state()
         self.hass.loop.create_task(self.coordinator.async_request_refresh())
